@@ -1,14 +1,15 @@
 id: jcode.lang.cpp
 name: C/C++ Dev Pack
 publisher: jcode
-version: 0.1.0
+version: 0.1.1
 type: language
-# clangd (the LSP) ships in the same apt set as the C/C++ toolchain entry, so both requirements
-# resolve out of the box; lldb-dap stays suggested — debugging is an opt-in, larger setup.
+# clangd (the LSP) installs as a requirement, so the pack works out of the box; the clangd toolchain SDK
+# is suggested (the LSP already provides the clangd binary) and lldb-dap stays suggested — debugging is
+# an opt-in, larger setup.
 requires:
-  sdks: [clangd]
   lsps: [clangd]
 suggests:
+  sdks: [clangd]
   dbg: [lldb-dap]
 description: Coloring, completions, snippets, and a clang-format formatter for C and C++.
 
