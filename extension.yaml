@@ -1,0 +1,212 @@
+id: jcode.lang.cpp
+name: C/C++ Dev Pack
+publisher: jcode
+version: 0.1.0
+type: language
+# clangd (the LSP) ships in the same apt set as the C/C++ toolchain entry, so both requirements
+# resolve out of the box; lldb-dap stays suggested — debugging is an opt-in, larger setup.
+requires:
+  sdks: [clangd]
+  lsps: [clangd]
+suggests:
+  dbg: [lldb-dap]
+description: Coloring, completions, snippets, and a clang-format formatter for C and C++.
+
+# One extension, two languages. Each entry is a self-contained language pack
+# (coloring + completions + helpers + formatter) by file extension.
+languages:
+  # ---------------------------------------------------------------- C
+  - id: c
+    extensions: [".c", ".h"]
+    comment:
+      line: "//"
+      blockStart: "/*"
+      blockEnd: "*/"
+    strings: ["\"", "'"]
+    keywords: [auto, break, case, char, const, continue, default, do, double, else,
+      enum, extern, float, for, goto, if, inline, int, long, register, restrict,
+      return, short, signed, sizeof, static, struct, switch, typedef, union,
+      unsigned, void, volatile, while, _Alignas, _Alignof, _Atomic, _Bool,
+      _Generic, _Noreturn, _Static_assert, _Thread_local, define, include, ifdef,
+      ifndef, elif, endif, pragma, error, undef, defined, NULL, true, false]
+    types: [size_t, ssize_t, ptrdiff_t, intptr_t, uintptr_t, int8_t, int16_t,
+      int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, bool, wchar_t,
+      char16_t, char32_t, va_list, FILE, time_t, off_t, pid_t, uid_t]
+    formatter:
+      # Best-effort runtime formatter (runs in the embedded distro). {{file}} is the
+      # guest path. Falls back to the basic rules below when clang-format is absent.
+      command: "clang-format -i {{file}} 2>/dev/null || true"
+      indent: 4
+      trimTrailingWhitespace: true
+      insertFinalNewline: true
+    completions:
+      - label: main
+        detail: main entry point
+        insert: "int main(int argc, char *argv[]) {\n    $0\n    return 0;\n}"
+      - label: inc
+        detail: "#include <...>"
+        insert: "#include <$0>"
+      - label: incq
+        detail: "#include \"...\""
+        insert: "#include \"$0\""
+      - label: forr
+        detail: for loop
+        insert: "for (int $1 = 0; $1 < $2; $1++) {\n    $0\n}"
+      - label: whl
+        detail: while loop
+        insert: "while ($1) {\n    $0\n}"
+      - label: ifn
+        detail: if block
+        insert: "if ($1) {\n    $0\n}"
+      - label: switch
+        detail: switch statement
+        insert: "switch ($1) {\ncase $2:\n    $3\n    break;\ndefault:\n    $0\n    break;\n}"
+      - label: struct
+        detail: typedef struct
+        insert: "typedef struct {\n    $1\n} $2;$0"
+      - label: enum
+        detail: typedef enum
+        insert: "typedef enum {\n    $1\n} $2;$0"
+      - label: fn
+        detail: Function
+        insert: "$1 $2($3) {\n    $0\n}"
+      - label: printf
+        detail: printf
+        insert: "printf(\"$1\\n\"$2);$0"
+    helpers:
+      - title: Header guard
+        snippet: |
+          #ifndef $1_H
+          #define $1_H
+
+          $0
+
+          #endif /* $1_H */
+      - title: do / while
+        snippet: "do {\n    $0\n} while ($1);"
+      - title: malloc with check
+        snippet: |
+          $1 *$2 = malloc(sizeof($1) * $3);
+          if ($2 == NULL) {
+              $0
+          }
+      - title: File read loop (fgets)
+        snippet: |
+          FILE *fp = fopen($1, "r");
+          if (fp != NULL) {
+              char line[256];
+              while (fgets(line, sizeof(line), fp) != NULL) {
+                  $0
+              }
+              fclose(fp);
+          }
+
+  # ---------------------------------------------------------------- C++
+  - id: cpp
+    extensions: [".cpp", ".cc", ".cxx", ".hpp", ".hh", ".hxx", ".ipp"]
+    comment:
+      line: "//"
+      blockStart: "/*"
+      blockEnd: "*/"
+    keywords: [alignas, alignof, and, asm, auto, bool, break, case, catch, char,
+      class, concept, const, consteval, constexpr, constinit, const_cast,
+      continue, co_await, co_return, co_yield, decltype, default, delete, do,
+      double, dynamic_cast, else, enum, explicit, export, extern, final, float,
+      for, friend, goto, if, inline, int, long, mutable, namespace, new,
+      noexcept, not, nullptr, operator, or, override, private, protected,
+      public, register, reinterpret_cast, requires, return, short, signed,
+      sizeof, static, static_assert, static_cast, struct, switch, template,
+      this, thread_local, throw, true, false, try, typedef, typeid, typename,
+      union, unsigned, using, virtual, void, volatile, wchar_t, while, define,
+      include, ifdef, ifndef, elif, endif, pragma]
+    strings: ["\"", "'"]
+    types: [std, string, string_view, vector, map, unordered_map, set,
+      unordered_set, array, deque, list, forward_list, queue, stack, pair,
+      tuple, optional, variant, any, span, unique_ptr, shared_ptr, weak_ptr,
+      function, size_t, ptrdiff_t, int8_t, int16_t, int32_t, int64_t, uint8_t,
+      uint16_t, uint32_t, uint64_t, istream, ostream, ifstream, ofstream,
+      stringstream, ostringstream, istringstream, thread, mutex, lock_guard,
+      unique_lock, atomic, chrono, filesystem, initializer_list, byte]
+    formatter:
+      command: "clang-format -i {{file}} 2>/dev/null || true"
+      indent: 4
+      trimTrailingWhitespace: true
+      insertFinalNewline: true
+    completions:
+      - label: main
+        detail: main entry point
+        insert: "int main(int argc, char *argv[]) {\n    $0\n    return 0;\n}"
+      - label: inc
+        detail: "#include <...>"
+        insert: "#include <$0>"
+      - label: cls
+        detail: Class
+        insert: "class $1 {\npublic:\n    $2\nprivate:\n    $0\n};"
+      - label: struct
+        detail: Struct
+        insert: "struct $1 {\n    $0\n};"
+      - label: forr
+        detail: for loop
+        insert: "for (int $1 = 0; $1 < $2; $1++) {\n    $0\n}"
+      - label: fore
+        detail: range-based for
+        insert: "for (const auto& $1 : $2) {\n    $0\n}"
+      - label: ifn
+        detail: if block
+        insert: "if ($1) {\n    $0\n}"
+      - label: switch
+        detail: switch statement
+        insert: "switch ($1) {\ncase $2:\n    $3\n    break;\ndefault:\n    $0\n    break;\n}"
+      - label: lam
+        detail: Lambda
+        insert: "[$1]($2) { $0 }"
+      - label: cout
+        detail: std::cout
+        insert: "std::cout << $0 << std::endl;"
+      - label: ns
+        detail: Namespace
+        insert: "namespace $1 {\n$0\n}  // namespace $1"
+      - label: tmpl
+        detail: Template function
+        insert: "template <typename $1>\n$2 $3($4) {\n    $0\n}"
+      - label: uptr
+        detail: make_unique
+        insert: "auto $1 = std::make_unique<$2>($3);$0"
+      - label: sptr
+        detail: make_shared
+        insert: "auto $1 = std::make_shared<$2>($3);$0"
+    helpers:
+      - title: Header guard (#pragma once)
+        snippet: "#pragma once\n\n$0"
+      - title: try / catch
+        snippet: "try {\n    $1\n} catch (const std::exception& e) {\n    $0\n}"
+      - title: Class with constructor
+        snippet: |
+          class $1 {
+          public:
+              explicit $1($2) $3 {}
+
+              $0
+          };
+      - title: RAII lock (lock_guard)
+        snippet: "std::lock_guard<std::mutex> lock($1);\n$0"
+      - title: Vector iterate with index
+        snippet: |
+          for (std::size_t i = 0; i < $1.size(); ++i) {
+              $0
+          }
+
+# --- header fields merged from extension.jehm ---
+shortDescription: Coloring, completions, snippets, and a clang-format formatter for C and C++.
+minJCodeVersion: 1.0.0
+targetJCodeVersion: 1.3.5
+category: Languages
+subcategory: C/C++
+images:
+  icon: media/icon.png
+  samples: []
+  walkthrough: []
+entry:
+  manifest: extension.yaml
+  ui: null
+  libs: []
