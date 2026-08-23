@@ -1,0 +1,85 @@
+# ---------------------------------------------------------------- C
+id: c
+extensions: [".c", ".h"]
+comment:
+  line: "//"
+  blockStart: "/*"
+  blockEnd: "*/"
+strings: ["\"", "'"]
+keywords: [auto, break, case, char, const, continue, default, do, double, else,
+  enum, extern, float, for, goto, if, inline, int, long, register, restrict,
+  return, short, signed, sizeof, static, struct, switch, typedef, union,
+  unsigned, void, volatile, while, _Alignas, _Alignof, _Atomic, _Bool,
+  _Generic, _Noreturn, _Static_assert, _Thread_local, define, include, ifdef,
+  ifndef, elif, endif, pragma, error, undef, defined, NULL, true, false]
+types: [size_t, ssize_t, ptrdiff_t, intptr_t, uintptr_t, int8_t, int16_t,
+  int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, bool, wchar_t,
+  char16_t, char32_t, va_list, FILE, time_t, off_t, pid_t, uid_t]
+formatter:
+  # Best-effort runtime formatter (runs in the embedded distro). {{file}} is the
+  # guest path. Falls back to the basic rules below when clang-format is absent.
+  command: "clang-format -i {{file}} 2>/dev/null || true"
+  indent: 4
+  trimTrailingWhitespace: true
+  insertFinalNewline: true
+completions:
+  - label: main
+    detail: main entry point
+    insert: "int main(int argc, char *argv[]) {\n    $0\n    return 0;\n}"
+  - label: inc
+    detail: "#include <...>"
+    insert: "#include <$0>"
+  - label: incq
+    detail: "#include \"...\""
+    insert: "#include \"$0\""
+  - label: forr
+    detail: for loop
+    insert: "for (int $1 = 0; $1 < $2; $1++) {\n    $0\n}"
+  - label: whl
+    detail: while loop
+    insert: "while ($1) {\n    $0\n}"
+  - label: ifn
+    detail: if block
+    insert: "if ($1) {\n    $0\n}"
+  - label: switch
+    detail: switch statement
+    insert: "switch ($1) {\ncase $2:\n    $3\n    break;\ndefault:\n    $0\n    break;\n}"
+  - label: struct
+    detail: typedef struct
+    insert: "typedef struct {\n    $1\n} $2;$0"
+  - label: enum
+    detail: typedef enum
+    insert: "typedef enum {\n    $1\n} $2;$0"
+  - label: fn
+    detail: Function
+    insert: "$1 $2($3) {\n    $0\n}"
+  - label: printf
+    detail: printf
+    insert: "printf(\"$1\\n\"$2);$0"
+helpers:
+  - title: Header guard
+    snippet: |
+      #ifndef $1_H
+      #define $1_H
+
+      $0
+
+      #endif /* $1_H */
+  - title: do / while
+    snippet: "do {\n    $0\n} while ($1);"
+  - title: malloc with check
+    snippet: |
+      $1 *$2 = malloc(sizeof($1) * $3);
+      if ($2 == NULL) {
+          $0
+      }
+  - title: File read loop (fgets)
+    snippet: |
+      FILE *fp = fopen($1, "r");
+      if (fp != NULL) {
+          char line[256];
+          while (fgets(line, sizeof(line), fp) != NULL) {
+              $0
+          }
+          fclose(fp);
+      }
