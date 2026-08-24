@@ -1,7 +1,7 @@
 id: jcode.lang.cpp
 name: C/C++ Dev Pack
 publisher: jcode
-version: 0.1.2
+version: 0.1.3
 type: language
 # clangd (the LSP) installs as a requirement, so the pack works out of the box; the clangd toolchain SDK
 # is suggested (the LSP already provides the clangd binary) and lldb-dap stays suggested — debugging is
