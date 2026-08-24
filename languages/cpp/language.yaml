@@ -1,0 +1,94 @@
+# ---------------------------------------------------------------- C++
+id: cpp
+extensions: [".cpp", ".cc", ".cxx", ".hpp", ".hh", ".hxx", ".ipp"]
+comment:
+  line: "//"
+  blockStart: "/*"
+  blockEnd: "*/"
+keywords: [alignas, alignof, and, asm, auto, bool, break, case, catch, char,
+  class, concept, const, consteval, constexpr, constinit, const_cast,
+  continue, co_await, co_return, co_yield, decltype, default, delete, do,
+  double, dynamic_cast, else, enum, explicit, export, extern, final, float,
+  for, friend, goto, if, inline, int, long, mutable, namespace, new,
+  noexcept, not, nullptr, operator, or, override, private, protected,
+  public, register, reinterpret_cast, requires, return, short, signed,
+  sizeof, static, static_assert, static_cast, struct, switch, template,
+  this, thread_local, throw, true, false, try, typedef, typeid, typename,
+  union, unsigned, using, virtual, void, volatile, wchar_t, while, define,
+  include, ifdef, ifndef, elif, endif, pragma]
+strings: ["\"", "'"]
+types: [std, string, string_view, vector, map, unordered_map, set,
+  unordered_set, array, deque, list, forward_list, queue, stack, pair,
+  tuple, optional, variant, any, span, unique_ptr, shared_ptr, weak_ptr,
+  function, size_t, ptrdiff_t, int8_t, int16_t, int32_t, int64_t, uint8_t,
+  uint16_t, uint32_t, uint64_t, istream, ostream, ifstream, ofstream,
+  stringstream, ostringstream, istringstream, thread, mutex, lock_guard,
+  unique_lock, atomic, chrono, filesystem, initializer_list, byte]
+formatter:
+  command: "clang-format -i {{file}} 2>/dev/null || true"
+  indent: 4
+  trimTrailingWhitespace: true
+  insertFinalNewline: true
+completions:
+  - label: main
+    detail: main entry point
+    insert: "int main(int argc, char *argv[]) {\n    $0\n    return 0;\n}"
+  - label: inc
+    detail: "#include <...>"
+    insert: "#include <$0>"
+  - label: cls
+    detail: Class
+    insert: "class $1 {\npublic:\n    $2\nprivate:\n    $0\n};"
+  - label: struct
+    detail: Struct
+    insert: "struct $1 {\n    $0\n};"
+  - label: forr
+    detail: for loop
+    insert: "for (int $1 = 0; $1 < $2; $1++) {\n    $0\n}"
+  - label: fore
+    detail: range-based for
+    insert: "for (const auto& $1 : $2) {\n    $0\n}"
+  - label: ifn
+    detail: if block
+    insert: "if ($1) {\n    $0\n}"
+  - label: switch
+    detail: switch statement
+    insert: "switch ($1) {\ncase $2:\n    $3\n    break;\ndefault:\n    $0\n    break;\n}"
+  - label: lam
+    detail: Lambda
+    insert: "[$1]($2) { $0 }"
+  - label: cout
+    detail: std::cout
+    insert: "std::cout << $0 << std::endl;"
+  - label: ns
+    detail: Namespace
+    insert: "namespace $1 {\n$0\n}  // namespace $1"
+  - label: tmpl
+    detail: Template function
+    insert: "template <typename $1>\n$2 $3($4) {\n    $0\n}"
+  - label: uptr
+    detail: make_unique
+    insert: "auto $1 = std::make_unique<$2>($3);$0"
+  - label: sptr
+    detail: make_shared
+    insert: "auto $1 = std::make_shared<$2>($3);$0"
+helpers:
+  - title: Header guard (#pragma once)
+    snippet: "#pragma once\n\n$0"
+  - title: try / catch
+    snippet: "try {\n    $1\n} catch (const std::exception& e) {\n    $0\n}"
+  - title: Class with constructor
+    snippet: |
+      class $1 {
+      public:
+          explicit $1($2) $3 {}
+
+          $0
+      };
+  - title: RAII lock (lock_guard)
+    snippet: "std::lock_guard<std::mutex> lock($1);\n$0"
+  - title: Vector iterate with index
+    snippet: |
+      for (std::size_t i = 0; i < $1.size(); ++i) {
+          $0
+      }
